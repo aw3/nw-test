@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>nw</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            overflow-y: hidden;
+        }
+
+        body {
+            padding: 0px;
+            margin: -2px 0px 0px 0px;
+            border: 1px solid #1883d7;
+        }
+
+        .window-titlebar {
+            /* background-color: rgb(211, 211, 211); */
+            color: rgb(51, 51, 51);
+            height: 30px;
+            line-height: 30px;
+            justify-content: left;
+            display: flex;
+        }
+
+        .window-titlebar .window-title {
+            flex: 0 1 auto;
+            font-size: 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-left: 8px;
+            margin-right: auto;
+            zoom: 1
+        }
+
+        .window-appicon {
+            width: 35px;
+            height: 100%;
+            background-color: #1883d7
+        }
+
+        .titlebar-drag-region {
+            top: 0;
+            left: 0;
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            z-index: -1;
+            -webkit-app-region: drag;
+        }
+
+        .window-controls-container {
+            display: flex;
+            flex-grow: 0;
+            flex-shrink: 0;
+            text-align: center;
+            position: relative;
+            z-index: 99;
+            -webkit-app-region: no-drag;
+            height: 100%;
+            width: 138px;
+            margin-left: auto;
+        }
+
+        .window-controls-container .window-icon-bg {
+            display: inline-block;
+            -webkit-app-region: no-drag;
+            height: 100%;
+            width: 33.34%;
+        }
+
+        .window-controls-container .window-icon-bg .window-icon {
+            background-color: #333;
+            height: 100%;
+            width: 100%;
+            -webkit-mask-size: 23.1%;
+        }
+
+        .window-controls-container .window-minimize {
+            -webkit-mask: url("data:image/svg+xml;charset=utf-8,<svg width='11' height='11' viewBox='0 0 11 11' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M11 4.399V5.5H0V4.399h11z' fill='%23000'/></svg>") no-repeat 50% 50%;
+        }
+
+        .window-controls-container .window-unmaximize {
+            -webkit-mask: url("data:image/svg+xml;charset=utf-8,<svg width='11' height='11' viewBox='0 0 11 11' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M11 8.798H8.798V11H0V2.202h2.202V0H11v8.798zm-3.298-5.5h-6.6v6.6h6.6v-6.6zM9.9 1.1H3.298v1.101h5.5v5.5h1.1v-6.6z' fill='%23000'/></svg>") no-repeat 50% 50%;
+        }
+
+        .window-controls-container .window-maximize {
+            -webkit-mask: url("data:image/svg+xml;charset=utf-8,<svg width='11' height='11' viewBox='0 0 11 11' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M11 0v11H0V0h11zM9.899 1.101H1.1V9.9h8.8V1.1z' fill='%23000'/></svg>") no-repeat 50% 50%;
+        }
+
+        .window-controls-container .window-close {
+            -webkit-mask: url("data:image/svg+xml;charset=utf-8,<svg width='11' height='11' viewBox='0 0 11 11' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M6.279 5.5L11 10.221l-.779.779L5.5 6.279.779 11 0 10.221 4.721 5.5 0 .779.779 0 5.5 4.721 10.221 0 11 .779 6.279 5.5z' fill='%23000'/></svg>") no-repeat 50% 50%;
+        }
+
+
+
+        .window-controls-container .window-icon-bg:hover {
+            background-color: rgba(0, 0, 0, .1)
+        }
+
+        .window-controls-container .window-icon-bg.window-close-bg:hover {
+            background-color: rgba(232, 17, 35, .9)
+        }
+
+        .window-controls-container .window-icon-bg.window-icon-bg .window-icon.window-close:hover {
+            background-color: #fff
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main-container" style="margin-top: 1px; border-top: 1px solid #1883d7;">
+        <!-- 标题栏 -->
+        <div id="titlebar" class="window-titlebar">
+            <!-- 标题栏拖动区域 -->
+            <div class="titlebar-drag-region"></div>
+            <!-- 应用图标 -->
+            <div class="window-appicon"></div>
+            <!-- 应用标题 -->
+            <div class="window-title" id="app-title">应用程序</div>
+            <!-- 窗口控制按钮区域 -->
+            <div class="window-controls-container">
+                <!-- 最小化按钮 -->
+                <div class="window-icon-bg">
+                    <div class="window-icon window-minimize" title="最小化"></div>
+                </div>
+                <!-- 最大化/还原按钮 -->
+                <div class="window-icon-bg">
+                    <div class="window-icon window-max-restore window-maximize"  title="最大化"></div>
+                </div>
+                <!-- 关闭按钮 -->
+                <div class="window-icon-bg window-close-bg">
+                    <div class="window-icon window-close"title="关闭"></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <button> test</button>
+        </div>
+    </div>
+</body>
+<script src="../js/jquery-3.3.1.min.js"></script>
+<script>
+    var win = nw.Window.get();
+    var isMax = false;
+    $(".window-icon.window-minimize").on("click", () => {
+
+        win.minimize();
+    })
+
+    $(".window-icon.window-close").on("click", () => {
+        win.close();
+    })
+
+    $(".window-icon.window-max-restore").on("click", () => {
+        (isMax) ? win.restore() : win.maximize();
+    })
+    // 监听窗口最大化
+    win.on('maximize', function () {
+        console.log("window maximize");
+        isMax = true;
+        changeMaxIcon(isMax);
+    });
+    // 监听窗口还原
+    win.on('restore', function () {
+        isMax = false;
+        changeMaxIcon(isMax);
+    });
+
+    // 切换最大化/还原图标
+    var changeMaxIcon = (isMax) => {
+        if (isMax) {
+            $(".window-icon.window-max-restore").removeClass("window-maximize");
+            $(".window-icon.window-max-restore").addClass("window-unmaximize");
+            $(".window-icon.window-max-restore").attr("title","还原");
+        } else {
+            $(".window-icon.window-max-restore").removeClass("window-unmaximize");
+            $(".window-icon.window-max-restore").addClass("window-maximize");
+            $(".window-icon.window-max-restore").attr("title","最大化");
+        }
+    }
+</script>
+
+</html>
